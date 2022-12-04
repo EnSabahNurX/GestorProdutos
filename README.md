@@ -1,7 +1,7 @@
 # GestorProdutos
 Criação de App de escritório com base de dados
 
-Python, TKinter, SQLAlchemy
+Python, TKinter, SQLAlchemy, SQLite
 
 M6_P2_Desktop App com Tkinter e base de dados SQLite
 
