@@ -4,26 +4,18 @@ import sqlite3
 from tkinter import *
 from tkinter import ttk
 
+import sqlalchemy
+
 cor_fundo = "#282a33"
+# Armazena a informação do PATH do projeto de acordo com o sistema utilizado
+diretorio_base = os.path.abspath(os.path.dirname(__file__))
+# Caminho para base de dados
+db = diretorio_base + '/database/produtos.db'
+engine = sqlalchemy.create_engine("sqlite:///" + db)
 
 
 class Produto:
-    # Armazena a informação do PATH do projeto de acordo com o sistema utilizado
-    diretorio_base = os.path.abspath(os.path.dirname(__file__))
-    # Caminho para base de dados
-    db = diretorio_base + '/database/produtos.db'
-
     def __init__(self, window):
-        self.botao_atualizar = None
-        self.input_preco_novo = None
-        self.etiqueta_preco_novo = None
-        self.input_preco_antigo = None
-        self.etiqueta_preco_antigo = None
-        self.input_nome_novo = None
-        self.etiqueta_nome_novo = None
-        self.input_nome_antigo = None
-        self.etiqueta_nome_antigo = None
-        self.janela_editar = None
         self.janela = window
         # Título da janela
         self.janela.title("App Gestor de Produtos")
@@ -33,7 +25,7 @@ class Produto:
         # Usando um ícone PNG para que o programa seja multiplataforma, assim como o PATH
         # A depender onde o programa é executado, Windows, Linux, MAC, BSD, etc,
         # O PATH foi atribuído automático graças a biblioteca OS e o método path.abspath
-        self.janela.iconphoto(False, PhotoImage(file=self.diretorio_base + '/recursos/icon.png'))
+        self.janela.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
 
         # Criação do recipiente Frame principal
         frame = LabelFrame(self.janela, text="Registar um novo Produto", bg="#282a33", fg="white",
@@ -116,7 +108,7 @@ class Produto:
         self.get_produtos()
 
     def popular_tabela(self):
-        with open(self.diretorio_base + "/database/produtos.csv", "r") as produtos:
+        with open(diretorio_base + "/database/produtos.csv", "r") as produtos:
             reader = csv.reader(produtos, delimiter=",")
             for index, row in enumerate(reader):
                 # Query para inserir na tabela cada produto dentro do loop que percorre todos
@@ -126,7 +118,7 @@ class Produto:
             produtos.close()
 
     def db_consulta(self, consulta, parametros=()):
-        with sqlite3.connect(self.db) as con:  # Iniciamos uma conexão com a base de dados (alias con)
+        with sqlite3.connect(db) as con:  # Iniciamos uma conexão com a base de dados (alias con)
             cursor = con.cursor()  # Criamos um cursor da conexão para poder operar na base de dados
             resultado = cursor.execute(consulta, parametros)  # Preparar a consulta SQL (com parâmetros se os há)
             con.commit()  # Executar a consulta SQL preparada anteriormente
@@ -234,7 +226,7 @@ class Produto:
         # Define uma cor de fundo e tamanho inicial da janela
         self.janela_editar.configure(bg=cor_fundo)
         # Ícone da janela
-        self.janela_editar.iconphoto(False, PhotoImage(file=self.diretorio_base + '/recursos/icon.png'))
+        self.janela_editar.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
 
         titulo = Label(self.janela_editar, text='Edição de Produtos', font=('Calibri', 30, 'bold'),
                        background=cor_fundo, foreground='white')
