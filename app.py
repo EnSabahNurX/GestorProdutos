@@ -82,7 +82,7 @@ class Produto:
         # Criar tabela
         # Query para checar a existência da tabela produto
         verificar_tabela = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='produto'"
-        # Testa se a tabela já existe para não tentar criar novamente, do contrário cria-se,
+        # Testa se a tabela já existe para não tentar criar novamente, caso não exista é criada,
         if self.db_consulta(verificar_tabela).fetchone()[0] == 0:
             # Query para criar a tabela
             criar_tabela_produto = 'CREATE TABLE "produto" ("id"	INTEGER NOT NULL,"nome"	TEXT NOT NULL,"preço"	REAL NOT NULL,PRIMARY KEY("id" AUTOINCREMENT))'
@@ -213,16 +213,18 @@ class Produto:
         # Ícone da janela
         self.janela_editar.iconphoto(False, PhotoImage(file=self.diretorio_base + '/recursos/icon.png'))
 
-        título = Label(self.janela_editar, text='Edição de Produtos', font=('TkHeadingFont', 30, 'bold'))
+        título = Label(self.janela_editar, text='Edição de Produtos', font=('TkHeadingFont', 30, 'bold'),
+                       background=cor_fundo, foreground='white')
         título.grid(column=0, row=0)
 
         # Criação do recipiente Frame da janela de Editar Produto
-        frame_ep = LabelFrame(self.janela_editar, text="Editar o seguinte Produto")  # frame_ep: Frame Editar Produto
+        frame_ep = LabelFrame(self.janela_editar, text="Editar o seguinte Produto", background=cor_fundo,
+                              foreground='white')  # frame_ep: Frame Editar Produto
         frame_ep.grid(row=1, column=0, columnspan=20, pady=20)
 
         # Label Nome antigo
         # Etiqueta de texto localizada no frame
-        self.etiqueta_nome_antigo = Label(frame_ep, text="Nome antigo: ")
+        self.etiqueta_nome_antigo = Label(frame_ep, text="Nome antigo: ", background=cor_fundo, foreground='white')
         # Posicionamento através de grid
         self.etiqueta_nome_antigo.grid(row=2, column=0)
         # Entry Nome antigo (texto que não se poderá modificar)
@@ -231,7 +233,7 @@ class Produto:
         self.input_nome_antigo.grid(row=2, column=1)
 
         # Label Nome novo
-        self.etiqueta_nome_novo = Label(frame_ep, text="Nome novo: ")
+        self.etiqueta_nome_novo = Label(frame_ep, text="Nome novo: ", background=cor_fundo, foreground='white')
         self.etiqueta_nome_novo.grid(row=3, column=0)
         # Entry Nome novo (texto que se poderá modificar)
         self.input_nome_novo = Entry(frame_ep)
@@ -241,7 +243,7 @@ class Produto:
 
         # Label Preço antigo
         # Etiqueta de texto localizada no frame
-        self.etiqueta_preco_antigo = Label(frame_ep, text="Preço antigo: ")
+        self.etiqueta_preco_antigo = Label(frame_ep, text="Preço antigo: ", background=cor_fundo, foreground='white')
         # Posicionamento através de grid
         self.etiqueta_preco_antigo.grid(row=4, column=0)
         # Entry Preço antigo (texto que não se poderá modificar)
@@ -250,7 +252,7 @@ class Produto:
         self.input_preco_antigo.grid(row=4, column=1)
 
         # Label Preço novo
-        self.etiqueta_preco_novo = Label(frame_ep, text="Preço novo: ")
+        self.etiqueta_preco_novo = Label(frame_ep, text="Preço novo: ", background=cor_fundo, foreground='white')
         self.etiqueta_preco_novo.grid(row=5, column=0)
         # Entry Preço novo (texto que se poderá modificar)
         self.input_preco_novo = Entry(frame_ep)
@@ -280,6 +282,7 @@ class Produto:
 
     def atualizar_produtos(self, novo_nome, antigo_nome, novo_preco, antigo_preco):
         produto_modificado = False
+        novo_preco = novo_preco.replace(',', '.')
         query = 'UPDATE produto SET nome = ?, preço = ? WHERE nome = ? AND preço = ?'
         if novo_nome != '' and novo_preco != '':
             # Se o utilizador escreve novo nome e novo preço, mudam-se ambos
