@@ -1,6 +1,5 @@
 import csv
 import os
-import sqlite3
 from tkinter import *
 from tkinter import ttk
 
@@ -14,6 +13,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # Cor de fundo padrão para o app
 cor_fundo = "#282a33"
 # Armazenar a informação do PATH do projeto de acordo com o sistema utilizado
+# independente se for MAC, Windows, Linux, BSD, etc
 diretorio_base = os.path.abspath(os.path.dirname(__file__))
 # Caminho para base de dados
 db = diretorio_base + '/database/produtos.db'
@@ -24,7 +24,7 @@ Base = declarative_base()
 
 
 # Modelar a tabela com uma classe específica
-class Produto(Base):
+class Produtos(Base):
     __tablename__ = 'produtos'
     id = Column(Integer(), primary_key=True, nullable=False)
     nome = Column(String(), nullable=False)
@@ -43,7 +43,7 @@ with open(diretorio_base + "/database/produtos.csv", "r") as produtos:
     reader = csv.reader(produtos, delimiter=",")
     for row in reader:
         # Query para inserir na tabela cada produto dentro do loop que percorre todos
-        session.add(Produto(nome=row[0], preço=float(row[1])))
+        session.add(Produtos(nome=row[0], preço=float(row[1])))
         session.commit()
     produtos.close()
 
@@ -109,6 +109,7 @@ class Produto:
         # Estrutura da tabela
         self.tabela = ttk.Treeview(height=20, columns=2, style="mystyle.Treeview")
         self.tabela.grid(row=4, column=0, columnspan=2)
+
         # Cabeçalho 0
         self.tabela.heading('#0', text='Nome', anchor=CENTER)
         # Cabeçalho 1
@@ -123,14 +124,7 @@ class Produto:
         botão_editar.grid(row=5, column=1, sticky=W + E)
 
         # Chamada ao método get_produtos() para obter a listagem de produtos ao início da app
-        # self.get_produtos()
-
-    def db_consulta(self, consulta, parametros=()):
-        with sqlite3.connect(db) as con:  # Iniciamos uma conexão com a base de dados (alias con)
-            cursor = con.cursor()  # Criamos um cursor da conexão para poder operar na base de dados
-            resultado = cursor.execute(consulta, parametros)  # Preparar a consulta SQL (com parâmetros se os há)
-            con.commit()  # Executar a consulta SQL preparada anteriormente
-        return resultado  # Restituir o resultado da consulta SQL
+        self.get_produtos()
 
     def get_produtos(self):
         # O primeiro, ao iniciar a app, vamos limpar a tabela se tiver dados residuais ou antigos
@@ -139,17 +133,14 @@ class Produto:
         for linha in registos_tabela:
             self.tabela.delete(linha)
 
-        # Consulta SQL
-        query = 'SELECT * FROM produto ORDER BY nome DESC'
+        # Armazenar todos os produtos da tabela numa variável
+        registos_db = session.query(Produtos).order_by(Produtos.nome.desc())
 
-        # Faz-se a chamada ao método db_consultas
-        registos_db = self.db_consulta(query)
-
-        # Escrever os dados no ecrã
+        # Escrever os dados no ecrã a percorrer todos as linhas da tabela
         for linha in registos_db:
             # print para verificar por consola os dados
-            # print(linha)
-            self.tabela.insert('', 0, text=linha[1], values=linha[2])
+            # print(linha.id, linha.nome, linha.preço)
+            self.tabela.insert('', 0, text=linha.nome, values=linha.preço)
 
     def validacao_nome(self):
         nome_introduzido_por_utilizador = self.nome.get()
