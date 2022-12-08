@@ -4,14 +4,13 @@ import sqlite3
 from tkinter import *
 from tkinter import ttk
 
-import sqlalchemy
+# Primeira versão do app segundo as orientações iniciais da Prática sugerida pelo curso com alguns ajustes
 
 cor_fundo = "#282a33"
 # Armazena a informação do PATH do projeto de acordo com o sistema utilizado
 diretorio_base = os.path.abspath(os.path.dirname(__file__))
 # Caminho para base de dados
 db = diretorio_base + '/database/produtos.db'
-engine = sqlalchemy.create_engine("sqlite:///" + db)
 
 
 class Produto:
@@ -88,9 +87,11 @@ class Produto:
         botão_editar = ttk.Button(text='EDITAR', command=self.edit_produto, style='my.TButton')
         botão_editar.grid(row=5, column=1, sticky=W + E)
 
-        # Criar tabela
+        # Criar tabela no banco de dados
+
         # Query para checar a existência da tabela produto
         verificar_tabela = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='produto'"
+
         # Testa se a tabela já existe para não tentar criar novamente, caso não exista é criada,
         if self.db_consulta(verificar_tabela).fetchone()[0] == 0:
             # Query para criar a tabela
@@ -133,6 +134,7 @@ class Produto:
 
         # Consulta SQL
         query = 'SELECT * FROM produto ORDER BY nome DESC'
+
         # Faz-se a chamada ao método db_consultas
         registos_db = self.db_consulta(query)
 
@@ -181,7 +183,7 @@ class Produto:
 
     def del_produto(self):
         # Debug
-        print(self.tabela.item(self.tabela.selection()))
+        # print(self.tabela.item(self.tabela.selection()))
         # print(self.tabela.item(self.tabela.selection())['text'])
         # print(self.tabela.item(self.tabela.selection())['values'])
         # print(self.tabela.item(self.tabela.selection())['values'][0])
