@@ -5,40 +5,45 @@ from tkinter import *
 from tkinter import ttk
 
 import sqlalchemy
-from sqlalchemy import MetaData, Table, Column, Integer, String, Float
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Segunda versão do app adaptado para o uso do sqlalchemy
 # permitindo que possa ser alterado para outro banco de dados diferente do sqlite facilmente
 
 # Cor de fundo padrão para o app
 cor_fundo = "#282a33"
-# Armazena a informação do PATH do projeto de acordo com o sistema utilizado
+# Armazenar a informação do PATH do projeto de acordo com o sistema utilizado
 diretorio_base = os.path.abspath(os.path.dirname(__file__))
 # Caminho para base de dados
 db = diretorio_base + '/database/produtos.db'
 
-# Criando ligações para conectar a base dados posteriormente
+# Criar ligações para conectar a base dados posteriormente
 engine = sqlalchemy.create_engine('sqlite:///' + db)
-meta = MetaData()
+Base = declarative_base()
 
-produtos = Table(
-    'produtos', meta,
-    Column('id', Integer, primary_key=True, nullable=False),
-    Column('nome', String, nullable=False),
-    Column('preço', Float(), nullable=False),
-)
-meta.create_all(engine, checkfirst=True)
+
+# Modelar a tabela com uma classe específica
+class Produto(Base):
+    __tablename__ = 'produtos'
+    id = Column(Integer(), primary_key=True, nullable=False)
+    nome = Column(String(), nullable=False)
+    preço = Column(Float(), nullable=False)
+
+
+# Criar tabela no banco de dados
+Base.metadata.create_all(engine, checkfirst=True)
 
 # Sessão para acessar o banco de dados e enviar comandos
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# Popular a tabela com uma carga inicial com dados contidos num arquivo CSV
 with open(diretorio_base + "/database/produtos.csv", "r") as produtos:
     reader = csv.reader(produtos, delimiter=",")
     for row in reader:
         # Query para inserir na tabela cada produto dentro do loop que percorre todos
-        session.add(row[0], float(row[1]))
+        session.add(Produto(nome=row[0], preço=float(row[1])))
         session.commit()
     produtos.close()
 
@@ -118,7 +123,7 @@ class Produto:
         botão_editar.grid(row=5, column=1, sticky=W + E)
 
         # Chamada ao método get_produtos() para obter a listagem de produtos ao início da app
-        self.get_produtos()
+        # self.get_produtos()
 
     def db_consulta(self, consulta, parametros=()):
         with sqlite3.connect(db) as con:  # Iniciamos uma conexão com a base de dados (alias con)
