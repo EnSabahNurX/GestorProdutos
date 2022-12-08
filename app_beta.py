@@ -38,14 +38,15 @@ Base.metadata.create_all(engine, checkfirst=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Popular a tabela com uma carga inicial com dados contidos num arquivo CSV
-with open(diretorio_base + "/database/produtos.csv", "r") as produtos:
-    reader = csv.reader(produtos, delimiter=",")
-    for row in reader:
-        # Query para inserir na tabela cada produto dentro do loop que percorre todos
-        session.add(Produtos(nome=row[0], preço=float(row[1])))
-        session.commit()
-    produtos.close()
+# Popular a tabela com uma carga inicial, em caso de estar vazia, com dados contidos num arquivo CSV
+if not session.query(Produtos).first():
+    with open(diretorio_base + "/database/produtos.csv", "r") as produtos:
+        reader = csv.reader(produtos, delimiter=",")
+        for row in reader:
+            # Query para inserir na tabela cada produto dentro do loop que percorre todos
+            session.add(Produtos(nome=row[0], preço=float(row[1])))
+            session.commit()
+        produtos.close()
 
 
 class Produto:
@@ -136,11 +137,11 @@ class Produto:
         # Armazenar todos os produtos da tabela numa variável
         registos_db = session.query(Produtos).order_by(Produtos.nome.desc())
 
-        # Escrever os dados no ecrã a percorrer todos as linhas da tabela
+        # Escrever os dados no ecrã a percorrer todas as linhas da tabela
         for linha in registos_db:
             # print para verificar por consola os dados
             # print(linha.id, linha.nome, linha.preço)
-            self.tabela.insert('', 0, text=linha.nome, values=linha.preço)
+            self.tabela.insert("", 0, text=linha.nome, values=linha.preço)
 
     def validacao_nome(self):
         nome_introduzido_por_utilizador = self.nome.get()
@@ -152,12 +153,10 @@ class Produto:
 
     def add_produto(self):
         if self.validacao_nome() and self.validacao_preco():
-            # Consulta SQL (sem os dados)
-            query = 'INSERT INTO produto VALUES(NULL, ?, ?)'
-            # Parâmetros da consulta SQL
+            # Parâmetros da query
             parametros = (self.nome.get(), float(self.preco.get().replace(",", ".")))
-            self.db_consulta(query, parametros)
-
+            session.add(Produtos(nome=parametros[0], preço=parametros[1]))
+            session.commit()
             # Label localizada entre o botão e a tabela
             self.mensagem['text'] = f'Produto {self.nome.get()} adicionado com êxito'
 
