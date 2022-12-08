@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Segunda versão do app adaptado para o uso do sqlalchemy
+# Segunda versão do app, que herda tudo da versão alpha, adaptado para o uso do sqlalchemy
 # permitindo que possa ser alterado para outro banco de dados diferente do sqlite facilmente
 
 # Cor de fundo padrão para o app
@@ -294,22 +294,24 @@ class Produto:
         produto_modificado = False
         parametros = None
         novo_preco = novo_preco.replace(',', '.')
-        query = 'UPDATE produto SET nome = ?, preço = ? WHERE nome = ? AND preço = ?'
+        update_produto = session.query(Produtos).where(Produtos.nome == antigo_nome,
+                                                       Produtos.preço == antigo_preco).first()
         if novo_nome != '' and novo_preco != '':
             # Se o utilizador escreve novo nome e novo preço, mudam-se ambos
-            parametros = (novo_nome, novo_preco, antigo_nome, antigo_preco)
+            # parametros = (novo_nome, novo_preco, antigo_nome, antigo_preco)
             produto_modificado = True
+            update_produto.nome = novo_nome
+            update_produto.preço = novo_preco
+            session.commit()
         elif novo_nome != '' and novo_preco == '':
             # Se o utilizador deixa vazio o novo preço, mantém-se o preço anterior
-            parametros = (novo_nome, antigo_preco, antigo_nome, antigo_preco)
             produto_modificado = True
+            update_produto.nome = novo_nome
         elif novo_nome == '' and novo_preco != '':
             # Se o utilizador deixa vazio o novo nome, mantém-se o nome anterior
-            parametros = (antigo_nome, novo_preco, antigo_nome, antigo_preco)
             produto_modificado = True
+            update_produto.preço = novo_preco
         if produto_modificado:
-            # Executar a consulta
-            self.db_consulta(query, parametros)
             # Fechar a janela de edição de produtos
             self.janela_editar.destroy()
             # Mostrar mensagem para o utilizador
