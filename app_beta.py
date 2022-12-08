@@ -194,13 +194,17 @@ class Produto:
             self.mensagem['text'] = 'Por favor, selecione um produto'
             return
         self.mensagem['text'] = ''
+
         # Armazena o nome do produto que se deseja eliminar
         nome = self.tabela.item(self.tabela.selection())['text']
-        # Consulta SQL
-        query = 'DELETE FROM produto WHERE nome = ?'
-        # Executar a consulta
-        self.db_consulta(query, (nome,))
-        self.mensagem['text'] = 'Produto {} eliminado com êxito'.format(nome)
+        preço = self.tabela.item(self.tabela.selection())['values'][0]
+
+        # Filtra pelo nome selecionado e elimina da tabela e do banco de dados
+        delete_produto = session.query(Produtos).filter_by(nome=nome, preço=preço).first()
+        session.delete(delete_produto)
+        session.commit()
+        # Exibir mensagem ao utilizador
+        self.mensagem['text'] = f'Produto {nome} eliminado com êxito'
         # Atualizar a tabela de produtos
         self.get_produtos()
 
