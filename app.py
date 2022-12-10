@@ -22,7 +22,7 @@ engine = sqlalchemy.create_engine('sqlite:///' + db)
 Base = declarative_base()
 
 
-# Modelar a tabela com uma classe específica
+# Modelar a tabela com uma classe específica herdandno o objeto Base do tipo declarativo que facilita a gestão de modelos
 class Produtos(Base):
     __tablename__ = 'produtos'
     id = Column(Integer(), primary_key=True, nullable=False)
