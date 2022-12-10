@@ -49,6 +49,7 @@ if not session.query(Produtos).first():
         produtos.close()
 
 
+# Classe para controlar a janela root
 class Produto:
     def __init__(self, window):
         self.janela = window
@@ -76,7 +77,7 @@ class Produto:
         self.nome = Entry(frame, font=('Calibri', 13))
         # Para que o foco do rato vá a esta Entry no início
         self.nome.focus()
-        self.nome.grid(row=1, column=1,sticky=NSEW)
+        self.nome.grid(row=1, column=1, sticky=NSEW)
         # Label Preço
         # Etiqueta de texto localizada no frame
         self.etiqueta_preco = Label(frame, text="Preço: *", bg="#282a33", fg="white", font=('Calibri', 13))
@@ -223,11 +224,11 @@ class Produto:
         self.mensagem['text'] = ''
 
         # Armazena o nome do produto que se deseja eliminar
-        id = self.tabela.item(self.tabela.selection())['values'][0]
+        valor_id = self.tabela.item(self.tabela.selection())['values'][0]
         nome = self.tabela.item(self.tabela.selection())['values'][1]
 
         # Filtra pela linha selecionada e elimina da tabela e do banco de dados segundo o ID
-        delete_produto = session.query(Produtos).filter_by(id=id).first()
+        delete_produto = session.query(Produtos).filter_by(id=valor_id).first()
         session.delete(delete_produto)
         session.commit()
         # Exibir mensagem ao utilizador
@@ -246,12 +247,12 @@ class Produto:
             return
         self.mensagem['text'] = 'A editar o produto selecionado.'
 
-        id = self.tabela.item(self.tabela.selection())['values'][0]
+        valor_id = self.tabela.item(self.tabela.selection())['values'][0]
         nome = self.tabela.item(self.tabela.selection())['values'][1]
         preço = self.tabela.item(self.tabela.selection())['values'][2]
         categoria = self.tabela.item(self.tabela.selection())['values'][3]
 
-        parametros = [id, nome, preço, categoria]
+        parametros = [valor_id, nome, preço, categoria]
         if not self.editando:
             # Limpa os campos de nome, preço e categoria antes de serem editados
             self.nome.delete(0, END)
