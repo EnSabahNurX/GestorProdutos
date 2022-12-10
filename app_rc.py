@@ -63,12 +63,12 @@ class Produto:
         self.janela.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
 
         # Criação do recipiente Frame principal
-        frame = LabelFrame(self.janela, text="Registar um novo Produto", bg="#282a33", fg="white",
+        frame = LabelFrame(self.janela, text="Gestão de Produtos", bg="#282a33", fg="white",
                            font=('Calibri', 16, 'bold'))
         frame.grid(row=0, column=0, columnspan=3, padx=20, pady=20, sticky="")
         # Label Nome
         # Etiqueta de texto localizada no frame
-        self.etiqueta_nome = Label(frame, text="Nome: ", bg="#282a33", fg="white", font=('Calibri', 13))
+        self.etiqueta_nome = Label(frame, text="Nome: *", bg="#282a33", fg="white", font=('Calibri', 13))
         # Posicionamento através de grid
         self.etiqueta_nome.grid(row=1, column=0)
         # Entry Nome (caixa de texto que irá receber o nome)
@@ -76,10 +76,10 @@ class Produto:
         self.nome = Entry(frame, font=('Calibri', 13))
         # Para que o foco do rato vá a esta Entry no início
         self.nome.focus()
-        self.nome.grid(row=1, column=1)
+        self.nome.grid(row=1, column=1,sticky=NSEW)
         # Label Preço
         # Etiqueta de texto localizada no frame
-        self.etiqueta_preco = Label(frame, text="Preço: ", bg="#282a33", fg="white", font=('Calibri', 13))
+        self.etiqueta_preco = Label(frame, text="Preço: *", bg="#282a33", fg="white", font=('Calibri', 13))
         self.etiqueta_preco.grid(row=2, column=0)
         # Entry Preço (caixa de texto que irá receber o preço)
         # Caixa de texto (input de texto) localizada no frame
@@ -87,7 +87,7 @@ class Produto:
         self.preco.grid(row=2, column=1)
         # Label Categoria
         # Etiqueta de texto localizada no frame
-        self.etiqueta_categoria = Label(frame, text="Categoria: ", bg="#282a33", fg="white", font=('Calibri', 13))
+        self.etiqueta_categoria = Label(frame, text="Categoria: *", bg="#282a33", fg="white", font=('Calibri', 13))
         # Posicionamento através de grid
         self.etiqueta_categoria.grid(row=3, column=0)
         # Entry Nome (caixa de texto que irá receber o nome)
@@ -98,18 +98,18 @@ class Produto:
         # Botão Adicionar Produto
         s = ttk.Style()
         s.configure('my.TButton', font=('Calibri', 14, 'bold'))
-        self.botao_adicionar = ttk.Button(frame, text="Guardar Produto", command=self.add_produto, style='my.TButton')
-        self.botao_adicionar.grid(row=4, columnspan=2, sticky=W + E)
+        self.botao_adicionar = ttk.Button(frame, text="GUARDAR", command=self.add_produto, style='my.TButton')
+        self.botao_adicionar.grid(row=4, column=0, sticky=W + E, columnspan=1, padx=10, pady=10)
 
         # Mensagem informativa para o utilizador
         self.mensagem = Label(text='A espera de inserir novos produtos', fg='red', font='Calibri')
-        self.mensagem.grid(row=4, column=0, columnspan=2, sticky=W + E)
+        self.mensagem.grid(row=5, column=0, columnspan=2, sticky=W + E)
 
         # Tabela de Produtos
         # Estilo personalizado para a tabela
         style = ttk.Style()
         # Modifica-se a fonte da tabela
-        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('TkMenuFont', 11), background=cor_fundo,
+        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11), background=cor_fundo,
                         foreground='white')
         # Modifica-se a fonte das cabeceiras
         style.configure("mystyle.Treeview.Heading", font=('TkMenuFont', 13, 'bold'), background=cor_fundo,
@@ -117,24 +117,38 @@ class Produto:
         # Eliminar as bordas
         style.layout("mystyle.Treeview", [('mystyle.Treeview.treearea', {'sticky': 'nswe'})])
         # Estrutura da tabela
-        self.tabela = ttk.Treeview(height=20, columns=2, style="mystyle.Treeview")
-        self.tabela.grid(row=5, column=0, columnspan=2)
+        colunas = ['id', 'Nome', 'Preço', 'Categoria']
+        self.tabela = ttk.Treeview(height=20, columns=colunas, style="mystyle.Treeview", show='headings')
+        self.tabela.grid(row=6, column=0)
 
-        # Cabeçalho 0
-        self.tabela.heading('#0', text='Nome', anchor=CENTER)
-        # Cabeçalho 1
-        self.tabela.heading('#1', text='Preço', anchor=CENTER)
+        for col in colunas:
+            self.tabela.heading(col, text=col.title(), anchor=CENTER)
+            if col == 'id':
+                self.tabela.column(col, width=0, anchor='center')
+            else:
+                self.tabela.column(col, anchor='center')
+
+        # Definir quais colunas serão visíveis na tabela ou não
+        colunas_nao_visiveis = ['id']
+        colunas_visiveis = []
+        for col in self.tabela['columns']:
+            if not f'{col}' in colunas_nao_visiveis:
+                colunas_visiveis.append(col)
+        self.tabela['displaycolumns'] = colunas_visiveis
 
         # Botões de Eliminar e Editar
         s = ttk.Style()
         s.configure('my.TButton', font=('Calibri', 14, 'bold'))
-        botão_eliminar = ttk.Button(text='ELIMINAR', command=self.del_produto, style='my.TButton')
-        botão_eliminar.grid(row=6, column=0, sticky=W + E)
-        botão_editar = ttk.Button(text='EDITAR', command=self.edit_produto, style='my.TButton')
-        botão_editar.grid(row=6, column=1, sticky=W + E)
+        self.botão_eliminar = ttk.Button(frame, text='ELIMINAR', command=self.del_produto, style='my.TButton')
+        self.botão_eliminar.grid(row=4, column=2, sticky=W + E, columnspan=1, padx=10, pady=10)
+        self.botão_editar = ttk.Button(frame, text='EDITAR', command=self.edit_produto, style='my.TButton')
+        self.botão_editar.grid(row=4, column=1, sticky=W + E, columnspan=1, padx=10, pady=10)
 
         # Chamada ao método get_produtos() para obter a listagem de produtos ao início da app
         self.get_produtos()
+        # Flag para identificar se está em processo de edição do registo na tabela
+        # e não permitir que seja interrompida a edição por outro comando
+        self.editando = False
 
     def get_produtos(self):
         # O primeiro, ao iniciar a app, vamos limpar a tabela se tiver dados residuais ou antigos
@@ -148,9 +162,8 @@ class Produto:
 
         # Escrever os dados no ecrã a percorrer todas as linhas da tabela
         for linha in registos_db:
-            # print para verificar por consola os dados
-            # print(linha.id, linha.nome, linha.preço)
-            self.tabela.insert("", 0, text=linha.nome, values=linha.preço)
+            items = [linha.id, linha.nome, linha.preço, linha.categoria]
+            self.tabela.insert("", 0, values=items)
 
     def validacao_nome(self):
         nome_introduzido_por_utilizador = self.nome.get()
@@ -160,34 +173,38 @@ class Produto:
         preco_introduzido_por_utilizador = self.preco.get()
         return len(preco_introduzido_por_utilizador) != 0
 
+    def validacao_categoria(self):
+        categoria_introduzida_por_utilizador = self.categoria.get()
+        return len(categoria_introduzida_por_utilizador) != 0
+
     def add_produto(self):
-        if self.validacao_nome() and self.validacao_preco():
+        if self.editando:
+            self.mensagem['text'] = 'Em processo de edição de produto, primeiro conclua a edição antes de prosseguir.'
+            return
+        if self.validacao_nome() and self.validacao_preco() and self.validacao_categoria():
             # Parâmetros da query
-            parametros = (self.nome.get(), float(self.preco.get().replace(",", ".")))
-            session.add(Produtos(nome=parametros[0], preço=parametros[1]))
+            parametros = (self.nome.get(), float(self.preco.get().replace(",", ".")), self.categoria.get())
+            session.add(Produtos(nome=parametros[0], preço=parametros[1], categoria=parametros[2]))
             session.commit()
             # Label localizada entre o botão e a tabela
             self.mensagem['text'] = f'Produto {self.nome.get()} adicionado com êxito'
 
-            # Para debug
-            # print(self.nome.get())
-            # print(self.preco.get())
-
-            # Limpa os campos de nome e preço após serem adicionados com sucesso à tabela
+            # Limpa os campos de nome,preço e categoria após serem adicionados com sucesso à tabela
             self.nome.delete(0, END)
             self.preco.delete(0, END)
-        elif self.validacao_nome() and not self.validacao_preco():
-            self.mensagem['text'] = 'O preço é obrigatório'
-        elif not self.validacao_nome() and self.validacao_preco():
-            self.mensagem['text'] = 'O nome é obrigatório'
+            self.categoria.delete(0, END)
+
         else:
-            self.mensagem['text'] = 'O nome e o preço são obrigatórios'
+            self.mensagem['text'] = 'Há campos que são obrigatórios sem preencher.'
 
         # Quando se finalizar a inserção de dados voltamos a invocar este
         # método para atualizar o conteúdo e ver as alterações
         self.get_produtos()
 
     def del_produto(self):
+        if self.editando:
+            self.mensagem['text'] = 'Em processo de edição de produto, primeiro conclua a edição antes de prosseguir.'
+            return
         # Debug
         # print(self.tabela.item(self.tabela.selection()))
         # print(self.tabela.item(self.tabela.selection())['text'])
@@ -198,18 +215,19 @@ class Produto:
         self.mensagem['text'] = ''
         # Comprovação de que se selecione um produto para poder eliminá-lo
         try:
-            self.tabela.item(self.tabela.selection())['text'][0]
+            self.tabela.item(self.tabela.selection())['values'][0]
+
         except IndexError:
             self.mensagem['text'] = 'Por favor, selecione um produto'
             return
         self.mensagem['text'] = ''
 
         # Armazena o nome do produto que se deseja eliminar
-        nome = self.tabela.item(self.tabela.selection())['text']
-        preço = self.tabela.item(self.tabela.selection())['values'][0]
+        id = self.tabela.item(self.tabela.selection())['values'][0]
+        nome = self.tabela.item(self.tabela.selection())['values'][1]
 
-        # Filtra pelo nome selecionado e elimina da tabela e do banco de dados
-        delete_produto = session.query(Produtos).filter_by(nome=nome, preço=preço).first()
+        # Filtra pela linha selecionada e elimina da tabela e do banco de dados segundo o ID
+        delete_produto = session.query(Produtos).filter_by(id=id).first()
         session.delete(delete_produto)
         session.commit()
         # Exibir mensagem ao utilizador
@@ -218,146 +236,65 @@ class Produto:
         self.get_produtos()
 
     def edit_produto(self):
+
         # Mensagem inicialmente vazia
         self.mensagem['text'] = ''
         try:
-            self.tabela.item(self.tabela.selection())['text'][0]
+            self.tabela.item(self.tabela.selection())['values'][0]
         except IndexError:
             self.mensagem['text'] = 'Por favor, selecione um produto'
             return
-        nome = self.tabela.item(self.tabela.selection())['text']
-        # O preço encontra-se dentro de uma lista
-        old_preco = self.tabela.item(self.tabela.selection())['values'][0]
+        self.mensagem['text'] = 'A editar o produto selecionado.'
 
-        categoria = self.tabela.item(self.tabela.selection())['category']
+        id = self.tabela.item(self.tabela.selection())['values'][0]
+        nome = self.tabela.item(self.tabela.selection())['values'][1]
+        preço = self.tabela.item(self.tabela.selection())['values'][2]
+        categoria = self.tabela.item(self.tabela.selection())['values'][3]
 
-        # Criar uma janela à frente da principal
-        self.janela_editar = Toplevel()
-        # Titulo da janela
-        self.janela_editar.title = "Editar Produto"
-        # Ativar a redimensão da janela. Para desativá-la: (0,0)
-        self.janela_editar.resizable(1, 1)
-        # Define uma cor de fundo e tamanho inicial da janela
-        self.janela_editar.configure(bg=cor_fundo)
-        # Ícone da janela
-        self.janela_editar.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
+        parametros = [id, nome, preço, categoria]
+        if not self.editando:
+            # Limpa os campos de nome, preço e categoria antes de serem editados
+            self.nome.delete(0, END)
+            self.preco.delete(0, END)
+            self.categoria.delete(0, END)
 
-        titulo = Label(self.janela_editar, text='Edição de Produtos', font=('Calibri', 30, 'bold'),
-                       background=cor_fundo, foreground='white')
-        titulo.grid(column=0, row=0)
+            # Preencher todos os campos ao qual registo irá ser editado
+            self.nome.insert(0, parametros[1])
+            self.preco.insert(0, parametros[2])
+            self.categoria.insert(0, parametros[3])
 
-        # Criação do recipiente Frame da janela de Editar Produto
-        frame_ep = LabelFrame(self.janela_editar, text="Editar o seguinte Produto", background=cor_fundo,
-                              foreground='white', font=('Calibri', 16, 'bold'))
-        # frame_ep: Frame Editar Produto
-        frame_ep.grid(row=1, column=0, columnspan=20, pady=20)
-
-        # Label Nome antigo
-        # Etiqueta de texto localizada no frame
-        self.etiqueta_nome_antigo = Label(frame_ep, text="Nome antigo: ", background=cor_fundo, foreground='white',
-                                          font=('Calibri', 13))
-        # Posicionamento através de grid
-        self.etiqueta_nome_antigo.grid(row=2, column=0)
-        # Entry Nome antigo (texto que não se poderá modificar)
-        self.input_nome_antigo = Entry(frame_ep, textvariable=StringVar(self.janela_editar, value=nome),
-                                       state='readonly', font=('Calibri', 13))
-        self.input_nome_antigo.grid(row=2, column=1)
-
-        # Label Nome novo
-        self.etiqueta_nome_novo = Label(frame_ep, text="Nome novo: ", background=cor_fundo, foreground='white',
-                                        font=('Calibri', 13))
-        self.etiqueta_nome_novo.grid(row=3, column=0)
-        # Entry Nome novo (texto que se poderá modificar)
-        self.input_nome_novo = Entry(frame_ep, font=('Calibri', 13))
-        self.input_nome_novo.grid(row=3, column=1)
-        # Para que a seta do rato vá a esta Entry ao início
-        self.input_nome_novo.focus()
-
-        # Label Preço antigo
-        # Etiqueta de texto localizada no frame
-        self.etiqueta_preco_antigo = Label(frame_ep, text="Preço antigo: ", background=cor_fundo, foreground='white',
-                                           font=('Calibri', 13))
-        # Posicionamento através de grid
-        self.etiqueta_preco_antigo.grid(row=4, column=0)
-        # Entry Preço antigo (texto que não se poderá modificar)
-        self.input_preco_antigo = Entry(frame_ep, textvariable=StringVar(self.janela_editar, value=old_preco),
-                                        state='readonly', font=('Calibri', 13))
-        self.input_preco_antigo.grid(row=4, column=1)
-
-        # Label Preço novo
-        self.etiqueta_preco_novo = Label(frame_ep, text="Preço novo: ", background=cor_fundo, foreground='white',
-                                         font=('Calibri', 13))
-        self.etiqueta_preco_novo.grid(row=5, column=0)
-        # Entry Preço novo (texto que se poderá modificar)
-        self.input_preco_novo = Entry(frame_ep, font=('Calibri', 13))
-        self.input_preco_novo.grid(row=5, column=1)
-
-        # Label Categoria antiga
-        # Etiqueta de texto localizada no frame
-        self.etiqueta_categoria_antiga = Label(frame_ep, text="Categoria antiga: ", background=cor_fundo,
-                                               foreground='white',
-                                               font=('Calibri', 13))
-        # Posicionamento através de grid
-        self.etiqueta_categoria_antiga.grid(row=6, column=0)
-        # Entry Nome antigo (texto que não se poderá modificar)
-        self.input_categoria_antiga = Entry(frame_ep, textvariable=StringVar(self.janela_editar, value=categoria),
-                                            state='readonly', font=('Calibri', 13))
-        self.input_categoria_antiga.grid(row=6, column=1)
-
-        # Label Categoria nova
-        self.etiqueta_categoria_nova = Label(frame_ep, text="Categoria nova: ", background=cor_fundo,
-                                             foreground='white',
-                                             font=('Calibri', 13))
-        self.etiqueta_categoria_nova.grid(row=7, column=0)
-        # Entry Nome novo (texto que se poderá modificar)
-        self.input_categoria_nova = Entry(frame_ep, font=('Calibri', 13))
-        self.input_categoria_nova.grid(row=7, column=1)
-
-        # Botão Atualizar Produto
-        self.botao_atualizar = ttk.Button(frame_ep, text="Atualizar Produto",
-                                          command=lambda: self.atualizar_produtos(self.input_nome_novo.get(),
-                                                                                  self.input_nome_antigo.get(),
-                                                                                  self.input_preco_novo.get(),
-                                                                                  self.input_preco_antigo.get(),
-                                                                                  self.input_categoria_antiga.get(),
-                                                                                  self.input_categoria_nova.get()))
-
-        self.botao_atualizar.grid(row=6, columnspan=2, sticky=W + E)
-
-    def atualizar_produtos(self, novo_nome, antigo_nome, novo_preco, antigo_preco):
-        produto_modificado = False
-        parametros = None
-        novo_preco = novo_preco.replace(',', '.')
-        update_produto = session.query(Produtos).where(Produtos.nome == antigo_nome,
-                                                       Produtos.preço == antigo_preco).first()
-        if novo_nome != '' and novo_preco != '':
-            # Se o utilizador escreve novo nome e novo preço, mudam-se ambos
-            # parametros = (novo_nome, novo_preco, antigo_nome, antigo_preco)
-            produto_modificado = True
-            update_produto.nome = novo_nome
-            update_produto.preço = novo_preco
-            session.commit()
-        elif novo_nome != '' and novo_preco == '':
-            # Se o utilizador deixa vazio o novo preço, mantém-se o preço anterior
-            produto_modificado = True
-            update_produto.nome = novo_nome
-        elif novo_nome == '' and novo_preco != '':
-            # Se o utilizador deixa vazio o novo nome, mantém-se o nome anterior
-            produto_modificado = True
-            update_produto.preço = novo_preco
-        if produto_modificado:
-            # Fechar a janela de edição de produtos
-            self.janela_editar.destroy()
-            # Mostrar mensagem para o utilizador
-            self.mensagem['text'] = f'O produto {antigo_nome} foi atualizado com êxito'
-            # Atualizar a tabela de produtos
-            self.get_produtos()
+            self.botão_editar['text'] = 'CONFIRMAR'
+            self.editando = True
         else:
-            # Fechar a janela de edição de produtos
-            self.janela_editar.destroy()
-            # Mostrar mensagem para o utilizador
-            self.mensagem['text'] = f'O produto {antigo_nome} NÃO foi atualizado'
+            self.atualizar_produtos()
+
+    def atualizar_produtos(self):
+        nome = self.nome.get()
+        preço = self.preco.get()
+        categoria = self.categoria.get()
+
+        parametros = [nome, preço, categoria]
+
+        if '' in parametros:
+            self.mensagem['text'] = 'Há campos que são obrigatórios sem preencher.'
+        else:
+            update_produto = session.query(Produtos).where(Produtos.id == id).first()
+            update_produto.nome = nome
+            update_produto.preço = float(preço.replace(',', '.'))
+            update_produto.categoria = categoria
+            session.commit()
+
+            self.nome.delete(0, END)
+            self.preco.delete(0, END)
+            self.categoria.delete(0, END)
+
+            for widget in self.tabela.winfo_children():
+                widget.destroy()
             self.get_produtos()
+            self.mensagem['text'] = f'Produto {self.nome.get()} atualizado com êxito'
+
+        self.botão_editar['text'] = 'EDITAR'
+        self.editando = False
 
 
 if __name__ == '__main__':
