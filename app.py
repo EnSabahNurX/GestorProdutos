@@ -1,13 +1,14 @@
 import csv
 import os
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Quarta versão do app, também versão final (release), que herda tudo da versão rc (release candidate), com adição de mais um widget que ainda não foi utilizado
+# Quarta versão do app, também versão final (release), que herda tudo da versão rc (release candidate),
+# com adição de mais um widget que ainda não foi utilizado, qual seja 'messagebox'
 
 # Cor de fundo padrão para o app
 cor_fundo = "#282a33"
@@ -119,7 +120,7 @@ class Produto:
         style.layout("mystyle.Treeview", [('mystyle.Treeview.treearea', {'sticky': 'nswe'})])
         # Estrutura da tabela
         colunas = ['id', 'Nome', 'Preço', 'Categoria']
-        self.tabela = ttk.Treeview(height=20, columns=colunas, style="mystyle.Treeview", show='headings')
+        self.tabela = ttk.Treeview(height=15, columns=colunas, style="mystyle.Treeview", show='headings')
         self.tabela.grid(row=6, column=0)
 
         for col in colunas:
@@ -151,6 +152,13 @@ class Produto:
         # e não permitir que seja interrompida a edição por outro comando
         self.editando = False
 
+        # Rodapé
+        frame_bottom = LabelFrame(self.janela, bg="#282a33", fg="white", font=('Calibri', 16, 'bold'), bd=0)
+        frame_bottom.grid(row=7, columnspan=3, sticky="")
+        # Botºao de Sair do programa
+        self.botao_sair = ttk.Button(frame_bottom, text="SAIR", command=self.janela.destroy, style='my.TButton')
+        self.botao_sair.grid(row=0, sticky=NSEW, columnspan=1, padx=10, pady=10)
+
     def get_produtos(self):
         # O primeiro, ao iniciar a app, vamos limpar a tabela se tiver dados residuais ou antigos
         # Obter todos os dados da tabela
@@ -181,7 +189,20 @@ class Produto:
     def add_produto(self):
         if self.editando:
             self.mensagem['text'] = 'Em processo de edição de produto, primeiro conclua a edição antes de prosseguir.'
+            messagebox.showwarning('Atenção',
+                                   'Em processo de edição de produto, por favor, primeiro conclua a edição em andamento antes de prosseguir.')
             return
+
+        # Verificar se no campo preço foi digitado números
+        try:
+            float(self.preco.get().replace(",", "."))
+        except:
+            self.mensagem[
+                'text'] = 'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.'
+            messagebox.showerror('Erro',
+                                 'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.')
+            return
+
         if self.validacao_nome() and self.validacao_preco() and self.validacao_categoria():
             # Parâmetros da query
             parametros = (self.nome.get(), float(self.preco.get().replace(",", ".")), self.categoria.get())
@@ -197,6 +218,8 @@ class Produto:
 
         else:
             self.mensagem['text'] = 'Há campos que são obrigatórios sem preencher.'
+            messagebox.showerror('Erro',
+                                 'Há campos que são obrigatórios sem preencher, por favor preencha-os antes de prosseguir.')
 
         # Quando se finalizar a inserção de dados voltamos a invocar este
         # método para atualizar o conteúdo e ver as alterações
@@ -205,6 +228,8 @@ class Produto:
     def del_produto(self):
         if self.editando:
             self.mensagem['text'] = 'Em processo de edição de produto, primeiro conclua a edição antes de prosseguir.'
+            messagebox.showwarning('Atenção',
+                                   'Em processo de edição de produto, por favor, primeiro conclua a edição em andamento antes de prosseguir.')
             return
         # Debug
         # print(self.tabela.item(self.tabela.selection()))
@@ -220,6 +245,8 @@ class Produto:
 
         except IndexError:
             self.mensagem['text'] = 'Por favor, selecione um produto'
+            messagebox.showerror('Erro',
+                                 'Não há produto selecionado, por favor, selecione um produto antes de prosseguir.')
             return
         self.mensagem['text'] = ''
 
@@ -244,6 +271,8 @@ class Produto:
             self.tabela.item(self.tabela.selection())['values'][0]
         except IndexError:
             self.mensagem['text'] = 'Por favor, selecione um produto'
+            messagebox.showerror('Erro',
+                                 'Não há produto selecionado, por favor, selecione um produto antes de prosseguir.')
             return
         self.mensagem['text'] = 'A editar o produto selecionado.'
 
@@ -269,7 +298,7 @@ class Produto:
         else:
             self.atualizar_produtos(valor_id)
 
-    def atualizar_produtos(self, id):
+    def atualizar_produtos(self, valor_id):
         nome = self.nome.get()
         preço = self.preco.get()
         categoria = self.categoria.get()
@@ -278,8 +307,20 @@ class Produto:
 
         if '' in parametros:
             self.mensagem['text'] = 'Há campos que são obrigatórios sem preencher.'
+            messagebox.showerror('Erro',
+                                 'Há campos que são obrigatórios sem preencher, por favor preencha-os antes de prosseguir.')
         else:
-            update_produto = session.query(Produtos).where(Produtos.id == id).first()
+            # Verificar se no campo preço foi digitado números
+            try:
+                float(self.preco.get().replace(",", "."))
+            except:
+                self.mensagem[
+                    'text'] = 'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.'
+                messagebox.showerror('Erro',
+                                     'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.')
+                return
+
+            update_produto = session.query(Produtos).where(Produtos.id == valor_id).first()
             update_produto.nome = nome
             update_produto.preço = float(preço.replace(',', '.'))
             update_produto.categoria = categoria
