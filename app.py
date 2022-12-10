@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Terceira versão do app, que herda tudo da versão beta, com adição de mais uma categoria na tabela de produtos
+# Quarta versão do app, também versão final (release), que herda tudo da versão rc (release candidate), com adição de mais um widget que ainda não foi utilizado
 
 # Cor de fundo padrão para o app
 cor_fundo = "#282a33"
