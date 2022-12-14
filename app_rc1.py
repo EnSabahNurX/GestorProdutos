@@ -64,7 +64,7 @@ class Produto:
         self.janela.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
 
         # Criação do recipiente Frame principal
-        frame = LabelFrame(self.janela, text="Gestão de Produtos", bg="#282a33", fg="white",
+        frame = LabelFrame(self.janela, text="Registar um novo Produto", bg="#282a33", fg="white",
                            font=('Calibri', 16, 'bold'))
         frame.grid(row=0, column=0, columnspan=3, padx=20, pady=20, sticky="")
         # Label Nome
