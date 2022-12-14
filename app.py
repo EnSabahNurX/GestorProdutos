@@ -11,7 +11,12 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # com adição de mais um widget que ainda não foi utilizado, qual seja 'messagebox'
 
 # Cor de fundo padrão para o app
-cor_fundo = "#282a33"
+cor_base1 = "#383c4a"
+cor_base2 = "#282a33"
+cor_guardar = "#72d5a3"
+cor_editar = "#94bff3"
+cor_eliminar = "#dca3a3"
+cor_sair = "#f0dfaf"
 # Armazenar a informação do PATH do projeto de acordo com o sistema utilizado
 # independente se for MAC, Windows, Linux, BSD, etc
 diretorio_base = os.path.abspath(os.path.dirname(__file__))
@@ -98,10 +103,13 @@ class Produto:
         self.categoria.grid(row=3, column=1, sticky=NSEW, columnspan=2)
 
         # Botão Adicionar Produto
-        s = ttk.Style()
-        s.configure('my.TButton', font=('Calibri', 14, 'bold'))
-        self.botao_adicionar = ttk.Button(frame, text="GUARDAR", command=self.add_produto, style='my.TButton')
-        self.botao_adicionar.grid(row=4, column=0, sticky=NSEW, columnspan=1, padx=10, pady=10)
+        guardar = ttk.Style()
+        guardar.configure('guardar.TButton', font=('Calibri', 14, 'bold'), background=cor_guardar, foreground=cor_base1,
+                          borderwidth=1, focusthickness=3,
+                          focuscolor='none')
+        guardar.map('guardar.TButton', background=[('active', cor_guardar)])
+        self.botao_adicionar = ttk.Button(frame, text="GUARDAR", command=self.add_produto, style='guardar.TButton')
+        self.botao_adicionar.grid(row=4, column=1, sticky=NSEW, columnspan=1, padx=10, pady=10)
 
         # Mensagem informativa para o utilizador
         self.mensagem = Label(text='A espera de inserir novos produtos', fg='red', font='Calibri')
@@ -111,16 +119,16 @@ class Produto:
         # Estilo personalizado para a tabela
         style = ttk.Style()
         # Modifica-se a fonte da tabela
-        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11), background=cor_fundo,
+        style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Calibri', 11), background=cor_base2,
                         foreground='white')
         # Modifica-se a fonte das cabeceiras
-        style.configure("mystyle.Treeview.Heading", font=('TkMenuFont', 13, 'bold'), background=cor_fundo,
+        style.configure("mystyle.Treeview.Heading", font=('TkMenuFont', 13, 'bold'), background=cor_base2,
                         foreground='grey')
         # Eliminar as bordas
         style.layout("mystyle.Treeview", [('mystyle.Treeview.treearea', {'sticky': 'nswe'})])
         # Estrutura da tabela
         colunas = ['id', 'Nome', 'Preço', 'Categoria']
-        self.tabela = ttk.Treeview(height=15, columns=colunas, style="mystyle.Treeview", show='headings')
+        self.tabela = ttk.Treeview(height=12, columns=colunas, style="mystyle.Treeview", show='headings')
         self.tabela.grid(row=6, column=0)
 
         for col in colunas:
@@ -138,26 +146,41 @@ class Produto:
                 colunas_visiveis.append(col)
         self.tabela['displaycolumns'] = colunas_visiveis
 
+        # Rodapé
+        frame_bottom = LabelFrame(self.janela, bg="#282a33", fg="white", font=('Calibri', 16, 'bold'), bd=0)
+        frame_bottom.grid(row=7, sticky="")
+
         # Botões de Eliminar e Editar
-        s = ttk.Style()
-        s.configure('my.TButton', font=('Calibri', 14, 'bold'))
-        self.botão_eliminar = ttk.Button(frame, text='ELIMINAR', command=self.del_produto, style='my.TButton')
-        self.botão_eliminar.grid(row=4, column=2, sticky=NSEW, columnspan=1, padx=10, pady=10)
-        self.botão_editar = ttk.Button(frame, text='EDITAR', command=self.edit_produto, style='my.TButton')
-        self.botão_editar.grid(row=4, column=1, sticky=W + E, columnspan=1, padx=10, pady=10)
+        eliminar = ttk.Style()
+        eliminar.configure('eliminar.TButton', font=('Calibri', 14, 'bold'), background='red', foreground='white',
+                           borderwidth=1, focusthickness=3,
+                           focuscolor='none')
+        eliminar.map('eliminar.TButton', background=[('active', 'red')])
+        self.botão_eliminar = ttk.Button(frame_bottom, text='ELIMINAR', command=self.del_produto,
+                                         style='eliminar.TButton')
+        self.botão_eliminar.grid(row=0, column=1, sticky=NSEW, columnspan=1, padx=10, pady=10)
+        editar = ttk.Style()
+        editar.configure('editar.TButton', font=('Calibri', 14, 'bold'), background='blue', foreground='white',
+                         borderwidth=1, focusthickness=3,
+                         focuscolor='none')
+        editar.map('editar.TButton', background=[('active', 'blue')])
+        self.botão_editar = ttk.Button(frame_bottom, text='EDITAR', command=self.edit_produto, style='editar.TButton')
+        self.botão_editar.grid(row=0, column=0, sticky=NSEW, columnspan=1, padx=10, pady=10)
+
+        # Botão de Sair do programa
+        sair = ttk.Style()
+        sair.configure('sair.TButton', font=('Calibri', 14, 'bold'), background='yellow', foreground='black',
+                       borderwidth=1, focusthickness=3,
+                       focuscolor='none')
+        sair.map('sair.TButton', background=[('active', 'yellow')])
+        self.botao_sair = ttk.Button(frame_bottom, text="SAIR", command=self.janela.destroy, style='sair.TButton')
+        self.botao_sair.grid(row=0, column=4, sticky=NSEW, columnspan=1, padx=10, pady=10)
 
         # Chamada ao método get_produtos() para obter a listagem de produtos ao início da app
         self.get_produtos()
         # Flag para identificar se está em processo de edição do registo na tabela
         # e não permitir que seja interrompida a edição por outro comando
         self.editando = False
-
-        # Rodapé
-        frame_bottom = LabelFrame(self.janela, bg="#282a33", fg="white", font=('Calibri', 16, 'bold'), bd=0)
-        frame_bottom.grid(row=7, columnspan=3, sticky="")
-        # Botºao de Sair do programa
-        self.botao_sair = ttk.Button(frame_bottom, text="SAIR", command=self.janela.destroy, style='my.TButton')
-        self.botao_sair.grid(row=0, sticky=NSEW, columnspan=1, padx=10, pady=10)
 
     def get_produtos(self):
         # O primeiro, ao iniciar a app, vamos limpar a tabela se tiver dados residuais ou antigos
@@ -231,11 +254,6 @@ class Produto:
             messagebox.showwarning('Atenção',
                                    'Em processo de edição de produto, por favor, primeiro conclua a edição em andamento antes de prosseguir.')
             return
-        # Debug
-        # print(self.tabela.item(self.tabela.selection()))
-        # print(self.tabela.item(self.tabela.selection())['text'])
-        # print(self.tabela.item(self.tabela.selection())['values'])
-        # print(self.tabela.item(self.tabela.selection())['values'][0])
 
         # Mensagem inicialmente vazio
         self.mensagem['text'] = ''
@@ -290,19 +308,19 @@ class Produto:
         # Ativar a redimensão da janela. Para desativá-la: (0,0)
         self.janela_editar.resizable(1, 1)
         # Define uma cor de fundo e tamanho inicial da janela
-        self.janela_editar.configure(bg=cor_fundo)
+        self.janela_editar.configure(bg=cor_base2)
         # Ícone da janela
         self.janela_editar.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
 
         # Criação do recipiente Frame da janela de Editar Produto
-        frame_ep = LabelFrame(self.janela_editar, text="Editar o seguinte Produto", background=cor_fundo,
+        frame_ep = LabelFrame(self.janela_editar, text="Editar o seguinte Produto", background=cor_base2,
                               foreground='white', font=('Calibri', 16, 'bold'))
         # frame_ep: Frame Editar Produto
         frame_ep.grid(row=0, column=0, columnspan=20, pady=20, padx=20)
 
         # Label Nome antigo
         # Etiqueta de texto localizada no frame
-        self.etiqueta_nome_antigo = Label(frame_ep, text="Nome antigo: ", background=cor_fundo, foreground='white',
+        self.etiqueta_nome_antigo = Label(frame_ep, text="Nome antigo: ", background=cor_base2, foreground='white',
                                           font=('Calibri', 13))
         # Posicionamento através de grid
         self.etiqueta_nome_antigo.grid(row=2, column=0, pady=5, padx=5)
@@ -312,7 +330,7 @@ class Produto:
         self.input_nome_antigo.grid(row=2, column=1, pady=5, padx=5)
 
         # Label Nome novo
-        self.etiqueta_nome_novo = Label(frame_ep, text="Nome novo: ", background=cor_fundo, foreground='white',
+        self.etiqueta_nome_novo = Label(frame_ep, text="Nome novo: ", background=cor_base2, foreground='white',
                                         font=('Calibri', 13))
         self.etiqueta_nome_novo.grid(row=3, column=0, pady=5, padx=5)
         # Entry Nome novo (texto que se poderá modificar)
@@ -323,7 +341,7 @@ class Produto:
 
         # Label Preço antigo
         # Etiqueta de texto localizada no frame
-        self.etiqueta_preco_antigo = Label(frame_ep, text="Preço antigo: ", background=cor_fundo, foreground='white',
+        self.etiqueta_preco_antigo = Label(frame_ep, text="Preço antigo: ", background=cor_base2, foreground='white',
                                            font=('Calibri', 13))
         # Posicionamento através de grid
         self.etiqueta_preco_antigo.grid(row=4, column=0, pady=5, padx=5)
@@ -333,7 +351,7 @@ class Produto:
         self.input_preco_antigo.grid(row=4, column=1, pady=5, padx=5)
 
         # Label Preço novo
-        self.etiqueta_preco_novo = Label(frame_ep, text="Preço novo: ", background=cor_fundo, foreground='white',
+        self.etiqueta_preco_novo = Label(frame_ep, text="Preço novo: ", background=cor_base2, foreground='white',
                                          font=('Calibri', 13))
         self.etiqueta_preco_novo.grid(row=5, column=0, pady=5, padx=5)
         # Entry Preço novo (texto que se poderá modificar)
@@ -342,7 +360,7 @@ class Produto:
 
         # Label Categoria antiga
         # Etiqueta de texto localizada no frame
-        self.etiqueta_categoria_antiga = Label(frame_ep, text="Categoria antiga: ", background=cor_fundo,
+        self.etiqueta_categoria_antiga = Label(frame_ep, text="Categoria antiga: ", background=cor_base2,
                                                foreground='white',
                                                font=('Calibri', 13))
         # Posicionamento através de grid
@@ -353,7 +371,7 @@ class Produto:
         self.input_categoria_antiga.grid(row=6, column=1, pady=5, padx=5)
 
         # Label Categoria nova
-        self.etiqueta_categoria_nova = Label(frame_ep, text="Categoria nova: ", background=cor_fundo,
+        self.etiqueta_categoria_nova = Label(frame_ep, text="Categoria nova: ", background=cor_base2,
                                              foreground='white',
                                              font=('Calibri', 13))
         self.etiqueta_categoria_nova.grid(row=7, column=0, pady=5, padx=5)
@@ -367,12 +385,18 @@ class Produto:
         self.input_categoria_nova.insert(0, categoria)
 
         # Botão Atualizar Produto
+        atualizar = ttk.Style()
+        atualizar.configure('atualizar.TButton', font=('Calibri', 14, 'bold'), background='blue', foreground='white',
+                            borderwidth=1, focusthickness=3,
+                            focuscolor='none')
+        atualizar.map('atualizar.TButton', background=[('active', 'blue')])
         self.botao_atualizar = ttk.Button(frame_ep, text="Atualizar Produto",
                                           command=lambda: self.atualizar_produtos(valor_id, nome,
                                                                                   self.input_nome_novo.get(), preço,
                                                                                   self.input_preco_novo.get(),
                                                                                   categoria,
-                                                                                  self.input_categoria_nova.get()))
+                                                                                  self.input_categoria_nova.get()),
+                                          style='atualizar.TButton')
         self.botao_atualizar.grid(row=8, columnspan=2, sticky=W + E, pady=5, padx=5)
 
     def atualizar_produtos(self, valor_id, nome, nome_novo, preço, preco_novo, categoria, categoria_nova):
@@ -391,11 +415,15 @@ class Produto:
                                      'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.')
                 return
 
-            if (nome != nome_novo) or (preço != preco_novo) or (categoria != categoria_nova):
+            if (nome != nome_novo and nome_novo != '') or (preço != preco_novo and preco_novo != '') or (
+                    categoria != categoria_nova and categoria_nova != ''):
                 update_produto = session.query(Produtos).where(Produtos.id == valor_id).first()
-                update_produto.nome = nome_novo
-                update_produto.preço = float(preco_novo.replace(',', '.'))
-                update_produto.categoria = categoria_nova
+                if nome != nome_novo and nome_novo != '':
+                    update_produto.nome = nome_novo
+                if preço != preco_novo and preco_novo != '':
+                    update_produto.preço = float(preco_novo.replace(',', '.'))
+                if categoria != categoria_nova and categoria_nova != '':
+                    update_produto.categoria = categoria_nova
                 session.commit()
 
                 # Fechar a janela de edição de produtos
@@ -421,7 +449,7 @@ if __name__ == '__main__':
     # Abrir a aplicação o mais próximo do centro possível
     root.eval("tk::PlaceWindow . center")
     # Define uma cor de fundo e tamanho inicial da janela
-    root.configure(bg=cor_fundo)
+    root.configure(bg=cor_base2)
     # Começamos o ciclo de aplicação, é como um while True
     # Envia-se para a classe Produto o controlo sobre a janela root
     app = Produto(root)
