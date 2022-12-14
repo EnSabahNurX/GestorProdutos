@@ -275,44 +275,115 @@ class Produto:
                                  'Não há produto selecionado, por favor, selecione um produto antes de prosseguir.')
             return
         self.mensagem['text'] = 'A editar o produto selecionado.'
+        # Regista que se encontra em processo de edição para bloquear ações como eliminar ou gravar antes de concluir a edição
+        self.editando = True
 
         valor_id = self.tabela.item(self.tabela.selection())['values'][0]
         nome = self.tabela.item(self.tabela.selection())['values'][1]
         preço = self.tabela.item(self.tabela.selection())['values'][2]
         categoria = self.tabela.item(self.tabela.selection())['values'][3]
 
-        parametros = [valor_id, nome, preço, categoria]
-        if not self.editando:
-            # Limpa os campos de nome, preço e categoria antes de serem editados
-            self.nome.delete(0, END)
-            self.preco.delete(0, END)
-            self.categoria.delete(0, END)
+        # Criar uma janela à frente da principal
+        self.janela_editar = Toplevel()
+        # Titulo da janela
+        self.janela_editar.title = "Editar Produto"
+        # Ativar a redimensão da janela. Para desativá-la: (0,0)
+        self.janela_editar.resizable(1, 1)
+        # Define uma cor de fundo e tamanho inicial da janela
+        self.janela_editar.configure(bg=cor_fundo)
+        # Ícone da janela
+        self.janela_editar.iconphoto(False, PhotoImage(file=diretorio_base + '/recursos/icon.png'))
 
-            # Preencher todos os campos ao qual registo irá ser editado
-            self.nome.insert(0, parametros[1])
-            self.preco.insert(0, parametros[2])
-            self.categoria.insert(0, parametros[3])
+        # Criação do recipiente Frame da janela de Editar Produto
+        frame_ep = LabelFrame(self.janela_editar, text="Editar o seguinte Produto", background=cor_fundo,
+                              foreground='white', font=('Calibri', 16, 'bold'))
+        # frame_ep: Frame Editar Produto
+        frame_ep.grid(row=0, column=0, columnspan=20, pady=20, padx=20)
 
-            self.botão_editar['text'] = 'CONFIRMAR'
-            self.editando = True
-        else:
-            self.atualizar_produtos(valor_id)
+        # Label Nome antigo
+        # Etiqueta de texto localizada no frame
+        self.etiqueta_nome_antigo = Label(frame_ep, text="Nome antigo: ", background=cor_fundo, foreground='white',
+                                          font=('Calibri', 13))
+        # Posicionamento através de grid
+        self.etiqueta_nome_antigo.grid(row=2, column=0, pady=5, padx=5)
+        # Entry Nome antigo (texto que não se poderá modificar)
+        self.input_nome_antigo = Entry(frame_ep, textvariable=StringVar(self.janela_editar, value=nome),
+                                       state='readonly', font=('Calibri', 13))
+        self.input_nome_antigo.grid(row=2, column=1, pady=5, padx=5)
 
-    def atualizar_produtos(self, valor_id):
-        nome = self.nome.get()
-        preço = self.preco.get()
-        categoria = self.categoria.get()
+        # Label Nome novo
+        self.etiqueta_nome_novo = Label(frame_ep, text="Nome novo: ", background=cor_fundo, foreground='white',
+                                        font=('Calibri', 13))
+        self.etiqueta_nome_novo.grid(row=3, column=0, pady=5, padx=5)
+        # Entry Nome novo (texto que se poderá modificar)
+        self.input_nome_novo = Entry(frame_ep, font=('Calibri', 13))
+        self.input_nome_novo.grid(row=3, column=1, pady=5, padx=5)
+        # Para que a seta do rato vá a esta Entry ao início
+        self.input_nome_novo.focus()
 
-        parametros = [nome, preço, categoria]
+        # Label Preço antigo
+        # Etiqueta de texto localizada no frame
+        self.etiqueta_preco_antigo = Label(frame_ep, text="Preço antigo: ", background=cor_fundo, foreground='white',
+                                           font=('Calibri', 13))
+        # Posicionamento através de grid
+        self.etiqueta_preco_antigo.grid(row=4, column=0, pady=5, padx=5)
+        # Entry Preço antigo (texto que não se poderá modificar)
+        self.input_preco_antigo = Entry(frame_ep, textvariable=StringVar(self.janela_editar, value=preço),
+                                        state='readonly', font=('Calibri', 13))
+        self.input_preco_antigo.grid(row=4, column=1, pady=5, padx=5)
 
-        if '' in parametros:
+        # Label Preço novo
+        self.etiqueta_preco_novo = Label(frame_ep, text="Preço novo: ", background=cor_fundo, foreground='white',
+                                         font=('Calibri', 13))
+        self.etiqueta_preco_novo.grid(row=5, column=0, pady=5, padx=5)
+        # Entry Preço novo (texto que se poderá modificar)
+        self.input_preco_novo = Entry(frame_ep, font=('Calibri', 13))
+        self.input_preco_novo.grid(row=5, column=1, pady=5, padx=5)
+
+        # Label Categoria antiga
+        # Etiqueta de texto localizada no frame
+        self.etiqueta_categoria_antiga = Label(frame_ep, text="Categoria antiga: ", background=cor_fundo,
+                                               foreground='white',
+                                               font=('Calibri', 13))
+        # Posicionamento através de grid
+        self.etiqueta_categoria_antiga.grid(row=6, column=0, pady=5, padx=5)
+        # Entry Categoria antiga (texto que não se poderá modificar)
+        self.input_categoria_antiga = Entry(frame_ep, textvariable=StringVar(self.janela_editar, value=categoria),
+                                            state='readonly', font=('Calibri', 13))
+        self.input_categoria_antiga.grid(row=6, column=1, pady=5, padx=5)
+
+        # Label Categoria nova
+        self.etiqueta_categoria_nova = Label(frame_ep, text="Categoria nova: ", background=cor_fundo,
+                                             foreground='white',
+                                             font=('Calibri', 13))
+        self.etiqueta_categoria_nova.grid(row=7, column=0, pady=5, padx=5)
+        # Entry Categoria nova (texto que se poderá modificar)
+        self.input_categoria_nova = Entry(frame_ep, font=('Calibri', 13))
+        self.input_categoria_nova.grid(row=7, column=1, pady=5, padx=5)
+
+        # Preencher todos os campos aos quais registo irão ser editados
+        self.input_nome_novo.insert(0, nome)
+        self.input_preco_novo.insert(0, preço)
+        self.input_categoria_nova.insert(0, categoria)
+
+        # Botão Atualizar Produto
+        self.botao_atualizar = ttk.Button(frame_ep, text="Atualizar Produto",
+                                          command=lambda: self.atualizar_produtos(valor_id, nome,
+                                                                                  self.input_nome_novo.get(), preço,
+                                                                                  self.input_preco_novo.get(),
+                                                                                  categoria,
+                                                                                  self.input_categoria_nova.get()))
+        self.botao_atualizar.grid(row=8, columnspan=2, sticky=W + E, pady=5, padx=5)
+
+    def atualizar_produtos(self, valor_id, nome, nome_novo, preço, preco_novo, categoria, categoria_nova):
+        if '' in [valor_id, nome, nome_novo, preço, preco_novo, categoria, categoria_nova]:
             self.mensagem['text'] = 'Há campos que são obrigatórios sem preencher.'
             messagebox.showerror('Erro',
                                  'Há campos que são obrigatórios sem preencher, por favor preencha-os antes de prosseguir.')
         else:
             # Verificar se no campo preço foi digitado números
             try:
-                float(self.preco.get().replace(",", "."))
+                float(preco_novo.replace(",", "."))
             except:
                 self.mensagem[
                     'text'] = 'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.'
@@ -320,23 +391,28 @@ class Produto:
                                      'Somente são aceitos números no campo "Preço", por favor, introduza o valor corretamente.')
                 return
 
-            update_produto = session.query(Produtos).where(Produtos.id == valor_id).first()
-            update_produto.nome = nome
-            update_produto.preço = float(preço.replace(',', '.'))
-            update_produto.categoria = categoria
-            session.commit()
+            if (nome != nome_novo) or (preço != preco_novo) or (categoria != categoria_nova):
+                update_produto = session.query(Produtos).where(Produtos.id == valor_id).first()
+                update_produto.nome = nome_novo
+                update_produto.preço = float(preco_novo.replace(',', '.'))
+                update_produto.categoria = categoria_nova
+                session.commit()
 
-            self.nome.delete(0, END)
-            self.preco.delete(0, END)
-            self.categoria.delete(0, END)
+                # Fechar a janela de edição de produtos
+                self.janela_editar.destroy()
+                # Mostrar mensagem para o utilizador
+                self.mensagem['text'] = f'O produto {nome} foi atualizado com êxito'
+                # Atualizar a tabela de produtos
+                self.get_produtos()
+                self.editando = False
 
-            for widget in self.tabela.winfo_children():
-                widget.destroy()
-            self.get_produtos()
-            self.mensagem['text'] = f'Produto {self.nome.get()} atualizado com êxito'
-
-        self.botão_editar['text'] = 'EDITAR'
-        self.editando = False
+            else:
+                # Fechar a janela de edição de produtos
+                self.janela_editar.destroy()
+                # Mostrar mensagem para o utilizador
+                self.mensagem['text'] = f'O produto {nome} NÃO foi atualizado'
+                self.get_produtos()
+                self.editando = False
 
 
 if __name__ == '__main__':
