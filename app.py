@@ -7,8 +7,9 @@ import sqlalchemy
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Quarta versão do app, que herda tudo da versão rc1 (release candidate 1),
-# com adição de mais um widget que ainda não foi utilizado, qual seja 'messagebox'
+# Quinta versão do app, e também a final (release), que herda tudo da versão rc2 (release candidate 2),
+# com alterações no tema e layout, trazendo de volta a segunda janela no processo de edição de produto
+# também incluídas algumas verificações de erros ao digitar pelo usuário
 
 # Cor de fundo padrão para o app
 cor_base1 = "#383c4a"
