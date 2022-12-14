@@ -109,10 +109,10 @@ class Produto:
                           focuscolor='none')
         guardar.map('guardar.TButton', background=[('active', cor_guardar)])
         self.botao_adicionar = ttk.Button(frame, text="GUARDAR", command=self.add_produto, style='guardar.TButton')
-        self.botao_adicionar.grid(row=4, column=1, sticky=NSEW, columnspan=1, padx=10, pady=10)
+        self.botao_adicionar.grid(row=4, column=0, columnspan=3, sticky=W + E, padx=10, pady=10)
 
         # Mensagem informativa para o utilizador
-        self.mensagem = Label(text='A espera de inserir novos produtos', fg='red', font='Calibri')
+        self.mensagem = Label(text='A espera de inserir novos produtos', bg=cor_base1, fg=cor_eliminar, font='Calibri')
         self.mensagem.grid(row=5, column=0, columnspan=2, sticky=NSEW)
 
         # Tabela de Produtos
@@ -152,29 +152,30 @@ class Produto:
 
         # Botões de Eliminar e Editar
         eliminar = ttk.Style()
-        eliminar.configure('eliminar.TButton', font=('Calibri', 14, 'bold'), background='red', foreground='white',
+        eliminar.configure('eliminar.TButton', font=('Calibri', 14, 'bold'), background=cor_eliminar,
+                           foreground=cor_base1,
                            borderwidth=1, focusthickness=3,
                            focuscolor='none')
-        eliminar.map('eliminar.TButton', background=[('active', 'red')])
+        eliminar.map('eliminar.TButton', background=[('active', cor_eliminar)])
         self.botão_eliminar = ttk.Button(frame_bottom, text='ELIMINAR', command=self.del_produto,
                                          style='eliminar.TButton')
-        self.botão_eliminar.grid(row=0, column=1, sticky=NSEW, columnspan=1, padx=10, pady=10)
+        self.botão_eliminar.grid(row=0, column=1, columnspan=1, sticky=W + E, padx=10, pady=10)
         editar = ttk.Style()
-        editar.configure('editar.TButton', font=('Calibri', 14, 'bold'), background='blue', foreground='white',
+        editar.configure('editar.TButton', font=('Calibri', 14, 'bold'), background=cor_editar, foreground=cor_base1,
                          borderwidth=1, focusthickness=3,
                          focuscolor='none')
-        editar.map('editar.TButton', background=[('active', 'blue')])
+        editar.map('editar.TButton', background=[('active', cor_editar)])
         self.botão_editar = ttk.Button(frame_bottom, text='EDITAR', command=self.edit_produto, style='editar.TButton')
-        self.botão_editar.grid(row=0, column=0, sticky=NSEW, columnspan=1, padx=10, pady=10)
+        self.botão_editar.grid(row=0, column=0, columnspan=1, sticky=W + E, padx=10, pady=10)
 
         # Botão de Sair do programa
         sair = ttk.Style()
-        sair.configure('sair.TButton', font=('Calibri', 14, 'bold'), background='yellow', foreground='black',
+        sair.configure('sair.TButton', font=('Calibri', 14, 'bold'), background=cor_sair, foreground=cor_base1,
                        borderwidth=1, focusthickness=3,
                        focuscolor='none')
-        sair.map('sair.TButton', background=[('active', 'yellow')])
+        sair.map('sair.TButton', background=[('active', cor_sair)])
         self.botao_sair = ttk.Button(frame_bottom, text="SAIR", command=self.janela.destroy, style='sair.TButton')
-        self.botao_sair.grid(row=0, column=4, sticky=NSEW, columnspan=1, padx=10, pady=10)
+        self.botao_sair.grid(row=0, column=3, columnspan=1, sticky=W + E, padx=10, pady=10)
 
         # Chamada ao método get_produtos() para obter a listagem de produtos ao início da app
         self.get_produtos()
@@ -386,10 +387,11 @@ class Produto:
 
         # Botão Atualizar Produto
         atualizar = ttk.Style()
-        atualizar.configure('atualizar.TButton', font=('Calibri', 14, 'bold'), background='blue', foreground='white',
+        atualizar.configure('atualizar.TButton', font=('Calibri', 14, 'bold'), background=cor_editar,
+                            foreground=cor_base1,
                             borderwidth=1, focusthickness=3,
                             focuscolor='none')
-        atualizar.map('atualizar.TButton', background=[('active', 'blue')])
+        atualizar.map('atualizar.TButton', background=[('active', cor_editar)])
         self.botao_atualizar = ttk.Button(frame_ep, text="Atualizar Produto",
                                           command=lambda: self.atualizar_produtos(valor_id, nome,
                                                                                   self.input_nome_novo.get(), preço,
